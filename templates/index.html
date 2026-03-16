@@ -643,14 +643,19 @@ tbody tr:hover td { background: #fdfcfa; }
     Setup
   </div>
 
-  <!-- Folder Path -->
+  <!-- Resume Upload -->
   <div style="margin-bottom: 22px;">
-    <label>Resume Folder Path</label>
-    <div class="input-wrap has-btn">
-      <input type="text" id="folder-path" placeholder="C:\Users\you\resumes" oninput="validateFolder()" />
-      <button class="browse-btn" onclick="browseFolder()">Browse</button>
+    <label>Upload Resumes</label>
+    <div class="dropzone" id="resume-zone"
+         ondragover="event.preventDefault();this.classList.add('drag-over')"
+         ondragleave="this.classList.remove('drag-over')"
+         ondrop="handleResumeDrop(event)">
+      <input type="file" id="resume-files" accept=".pdf,.docx,.doc,.txt" multiple onchange="handleResumeChange(event)" />
+      <div class="dropzone-icon">📁</div>
+      <p>Drop resume files here or <strong>browse</strong></p>
+      <small>Supports PDF, DOCX, TXT — select multiple files</small>
     </div>
-    <div class="hint" id="folder-hint">Absolute path to folder containing PDF / DOCX / TXT resumes</div>
+    <div class="hint" id="resume-hint">No files selected</div>
   </div>
 
   <!-- JD Upload -->
@@ -736,43 +741,43 @@ let results = [];
 let chats = {};
 
 // ═══════════════════════════════════════════════════
-//  FOLDER
+//  RESUME UPLOAD
 // ═══════════════════════════════════════════════════
-async function browseFolder() {
-  const res = await fetch('/api/browse', { method: 'POST' });
-  const data = await res.json();
-  if (data.path) {
-    document.getElementById('folder-path').value = data.path;
-    setFolderHint(data.count);
+let resumeFileList = [];
+
+function handleResumeDrop(e) {
+  e.preventDefault();
+  document.getElementById('resume-zone').classList.remove('drag-over');
+  const dropped = Array.from(e.dataTransfer.files).filter(f =>
+    /\.(pdf|docx|doc|txt)$/i.test(f.name)
+  );
+  if (dropped.length) addResumeFiles(dropped);
+}
+
+function handleResumeChange(e) {
+  const selected = Array.from(e.target.files);
+  if (selected.length) addResumeFiles(selected);
+}
+
+function addResumeFiles(files) {
+  const existing = new Set(resumeFileList.map(f => f.name));
+  const newFiles = files.filter(f => !existing.has(f.name));
+  resumeFileList = [...resumeFileList, ...newFiles];
+  updateResumeHint();
+}
+
+function updateResumeHint() {
+  const el = document.getElementById('resume-hint');
+  if (resumeFileList.length === 0) {
+    el.className = 'hint';
+    el.textContent = 'No files selected';
+  } else {
+    el.className = 'hint ok';
+    el.textContent = `✓ ${resumeFileList.length} resume file${resumeFileList.length !== 1 ? 's' : ''} selected`;
   }
-}
-
-let folderTimer;
-function validateFolder() {
-  clearTimeout(folderTimer);
-  folderTimer = setTimeout(async () => {
-    const path = document.getElementById('folder-path').value.trim();
-    if (!path) return;
-    const res = await fetch('/api/validate-folder', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({path})
-    });
-    const data = await res.json();
-    if (data.valid) setFolderHint(data.count);
-    else setFolderError('Folder not found or inaccessible');
-  }, 600);
-}
-
-function setFolderHint(count) {
-  const el = document.getElementById('folder-hint');
-  el.className = 'hint ok';
-  el.textContent = `✓ ${count} resume file${count !== 1 ? 's' : ''} found`;
-  document.getElementById('file-count').textContent = '';
-}
-function setFolderError(msg) {
-  const el = document.getElementById('folder-hint');
-  el.className = 'hint err';
-  el.textContent = '✗ ' + msg;
+  document.getElementById('file-count').textContent = resumeFileList.length > 0
+    ? `${resumeFileList.length} file${resumeFileList.length !== 1 ? 's' : ''} ready`
+    : '';
 }
 
 // ═══════════════════════════════════════════════════
@@ -836,11 +841,10 @@ function clearJD() {
 //  ANALYSIS (SSE streaming)
 // ═══════════════════════════════════════════════════
 async function startAnalysis() {
-  const folderPath = document.getElementById('folder-path').value.trim();
   const errBox = document.getElementById('error-msg');
   errBox.style.display = 'none';
 
-  if (!folderPath) { showError('Please select a resume folder.'); return; }
+  if (!resumeFileList.length) { showError('Please upload at least one resume file.'); return; }
   if (!jdText) { showError('Please upload a Job Description file.'); return; }
 
   document.getElementById('analyze-btn').disabled = true;
@@ -848,38 +852,34 @@ async function startAnalysis() {
   document.getElementById('results-card').style.display = 'none';
   results = [];
   chats = {};
-  setProgress(2, 'Connecting to AI...');
+  setProgress(10, `Uploading ${resumeFileList.length} resume(s) to AI...`);
 
   const formData = new FormData();
-  formData.append('folder_path', folderPath);
+  resumeFileList.forEach(f => formData.append('resumes', f));
   formData.append('jd_text', jdText);
 
-  const response = await fetch('/api/analyze', { method: 'POST', body: formData });
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let buf = '';
+  try {
+    setProgress(30, 'Analyzing resumes with Groq AI...');
+    const response = await fetch('/api/analyze', { method: 'POST', body: formData });
+    setProgress(80, 'Processing results...');
+    const evt = await response.json();
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buf += decoder.decode(value, { stream: true });
-    const lines = buf.split('\n');
-    buf = lines.pop();
-    for (const line of lines) {
-      if (!line.startsWith('data: ')) continue;
-      const evt = JSON.parse(line.slice(6));
-      if (evt.type === 'error') { showError(evt.message); break; }
-      if (evt.type === 'progress') setProgress(evt.progress, evt.message);
-      if (evt.type === 'done') {
-        results = evt.results;
-        setProgress(100, `Done! ${results.length} candidates ranked.`);
-        setTimeout(showResults, 400);
-      }
+    if (evt.type === 'error') {
+      showError(evt.message);
+      return;
     }
+    if (evt.type === 'done') {
+      results = evt.results;
+      setProgress(100, `Done! ${results.length} candidate${results.length !== 1 ? 's' : ''} ranked.`);
+      setTimeout(showResults, 400);
+    }
+  } catch (err) {
+    showError('Request failed: ' + err.message + '. Please try again.');
+  } finally {
+    document.getElementById('analyze-btn').disabled = false;
   }
-
-  document.getElementById('analyze-btn').disabled = false;
 }
+
 
 function setProgress(pct, msg) {
   document.getElementById('progress-fill').style.width = pct + '%';
