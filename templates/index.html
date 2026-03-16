@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecruitAI — Patil Group | AI-Powered Candidate Matching</title>
+<meta name="description" content="RecruitAI by Patil Group — AI-powered resume screening and candidate ranking tool for HR professionals.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Patil Group Brand Colors */
+  --maroon: #8B1A2B;
+  --maroon-dark: #6E1422;
+  --maroon-light: #fdf2f4;
+  --gold: #C99A2E;
+  --gold-dark: #A67D1E;
+  --gold-light: #fef9ec;
+  --gold-border: #f5e6b8;
+  --orange: #D4651E;
+
+  /* UI Tokens */
+  --bg: #f7f6f4;
+  --card: #ffffff;
+  --accent: var(--maroon);
+  --accent-hover: var(--maroon-dark);
+  --accent-light: var(--maroon-light);
+  --text: #1e1e1e;
+  --text-secondary: #4a4a4a;
+  --muted: #8a8a8a;
+  --border: #e5e2de;
+  --border-light: #f0eeeb;
+  --green: #1a7a4c;
+  --green-bg: #edf7f1;
+  --green-border: #b1dfc4;
+  --red: #c42b2b;
+  --red-bg: #fdf2f2;
+  --yellow: #b58a14;
+  --radius: 12px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 1px 4px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03);
+  --shadow-lg: 0 4px 24px rgba(0,0,0,0.07);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ─────────────────────────────────── */
+.header {
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  padding: 18px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-inner {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.header-logo img {
+  height: 52px;
+  width: auto;
+  display: block;
+}
+.header-text { flex: 1; }
+.header h1 {
+  color: var(--maroon);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+.header p {
+  color: var(--gold-dark);
+  font-size: 12px;
+  margin-top: 2px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+.header-badge {
+  background: var(--maroon-light);
+  color: var(--maroon);
+  padding: 5px 14px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid #ecd4d8;
+  letter-spacing: 0.3px;
+}
+
+/* ── LAYOUT ─────────────────────────────────── */
+.wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+
+/* ── CARD ────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 28px 30px;
+  margin-top: 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.card-title .step-num {
+  width: 28px;
+  height: 28px;
+  background: var(--maroon);
+  color: #fff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* ── FORM ────────────────────────────────────── */
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 7px;
+}
+.hint { font-size: 11.5px; color: var(--muted); margin-top: 6px; }
+.hint.ok { color: var(--green); font-weight: 500; }
+.hint.err { color: var(--red); font-weight: 500; }
+
+.input-wrap { position: relative; display: flex; }
+.input-wrap input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  color: var(--text);
+  background: #fdfcfb;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.input-wrap input:focus {
+  border-color: var(--maroon);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(139,26,43,0.07);
+}
+
+.input-wrap.has-btn input { border-radius: 10px 0 0 10px; }
+.browse-btn {
+  background: var(--gold-light);
+  border: 1.5px solid var(--gold-border);
+  border-left: none;
+  border-radius: 0 10px 10px 0;
+  padding: 0 18px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold-dark);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+.browse-btn:hover { background: #fdf0d0; }
+
+/* ── DROP ZONE ───────────────────────────────── */
+.dropzone {
+  border: 2px dashed #d6cfc5;
+  border-radius: 12px;
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  background: #fdfcfb;
+  transition: all 0.2s;
+  position: relative;
+}
+.dropzone:hover, .dropzone.drag-over {
+  border-color: var(--maroon);
+  background: var(--maroon-light);
+}
+.dropzone input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%;
+}
+.dropzone-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.5; }
+.dropzone p { font-size: 14px; color: var(--text-secondary); }
+.dropzone strong { color: var(--maroon); text-decoration: underline; cursor: pointer; }
+.dropzone small { display: block; font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+.jd-loaded {
+  background: var(--green-bg);
+  border: 1.5px solid var(--green-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--green);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.jd-loaded .jd-body { flex: 1; }
+.jd-loaded .jd-name { font-weight: 700; margin-bottom: 4px; }
+.jd-loaded .jd-excerpt { font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
+
+/* ── BUTTONS ─────────────────────────────────── */
+.btn-primary {
+  background: var(--maroon);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 2px 8px rgba(139,26,43,0.2);
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-primary:hover {
+  background: var(--maroon-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(139,26,43,0.28);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-sm {
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  background: #fff;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+.btn-sm:hover {
+  border-color: var(--gold);
+  color: var(--gold-dark);
+  background: var(--gold-light);
+}
+.btn-ask {
+  background: var(--maroon);
+  color: #fff;
+  border-color: var(--maroon);
+}
+.btn-ask:hover {
+  background: var(--maroon-dark);
+  color: #fff;
+  border-color: var(--maroon-dark);
+}
+
+/* ── PROGRESS ────────────────────────────────── */
+.progress-box {
+  margin-top: 20px;
+  padding: 16px 18px;
+  background: var(--gold-light);
+  border: 1.5px solid var(--gold-border);
+  border-radius: 12px;
+}
+.progress-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold-dark);
+  margin-bottom: 10px;
+}
+.progress-track {
+  background: #f0e4c4;
+  border-radius: 100px;
+  height: 8px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+  border-radius: 100px;
+  transition: width 0.5s ease;
+}
+
+/* ── RESULTS ─────────────────────────────────── */
+.results-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.results-title {
+  font-size: 18px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+}
+.badge {
+  background: var(--maroon-light);
+  color: var(--maroon);
+  padding: 4px 14px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid #ecd4d8;
+}
+.controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.show-select {
+  padding: 8px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  background: #fff;
+  cursor: pointer;
+  outline: none;
+}
+
+/* ── TABLE ───────────────────────────────────── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 900px; }
+thead th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+  background: #fdfcfb;
+}
+tbody td {
+  padding: 18px 14px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border-light);
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: #fdfcfa; }
+
+.rank-num {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--maroon);
+  border-radius: 8px;
+}
+
+.cname { font-weight: 700; font-size: 14px; color: var(--text); }
+.cfile {
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-top: 2px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.cedu { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+.cexp-tag {
+  display: inline-block;
+  background: var(--gold-light);
+  color: var(--gold-dark);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 100px;
+  margin-top: 4px;
+  border: 1px solid var(--gold-border);
+}
+
+.score { font-size: 24px; font-weight: 900; }
+.score-hi { color: var(--green); }
+.score-mid { color: var(--yellow); }
+.score-lo { color: var(--red); }
+
+.skills {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 140px;
+  max-width: 170px;
+}
+.skill-pill {
+  background: var(--gold-light);
+  color: var(--gold-dark);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  border: 1px solid var(--gold-border);
+}
+
+.exp-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  max-width: 175px;
+}
+
+.str-item {
+  font-size: 12px;
+  color: var(--green);
+  margin-bottom: 5px;
+  line-height: 1.4;
+}
+.str-item::before { content: '✓ '; font-weight: 700; }
+.gap-item {
+  font-size: 12px;
+  color: var(--red);
+  margin-bottom: 5px;
+  line-height: 1.4;
+}
+.gap-item::before { content: '✗ '; font-weight: 700; }
+
+/* ── CHAT ────────────────────────────────────── */
+.chat-wrap { margin-top: 14px; }
+.chat-box {
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.chat-hdr {
+  background: var(--maroon);
+  color: #fff;
+  padding: 11px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+.chat-close {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.15s;
+}
+.chat-close:hover { color: #fff; }
+
+.quick-wrap {
+  padding: 10px 14px;
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  background: #fdfcfb;
+}
+.qbtn {
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--maroon-light);
+  color: var(--maroon);
+  border: 1px solid #ecd4d8;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.15s;
+}
+.qbtn:hover {
+  background: var(--maroon);
+  color: #fff;
+  border-color: var(--maroon);
+}
+
+.chat-msgs {
+  padding: 14px 16px;
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #fdfcfb;
+}
+.msg {
+  padding: 9px 13px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.55;
+  max-width: 88%;
+}
+.msg-u {
+  background: var(--maroon);
+  color: #fff;
+  align-self: flex-end;
+  border-radius: 10px 10px 2px 10px;
+}
+.msg-a {
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--text);
+  align-self: flex-start;
+  border-radius: 10px 10px 10px 2px;
+}
+.msg-typing {
+  font-style: italic;
+  color: var(--muted);
+  font-size: 12px;
+  align-self: flex-start;
+  padding: 6px 0;
+}
+
+.chat-row {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  background: #fff;
+}
+.chat-inp {
+  flex: 1;
+  padding: 9px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  outline: none;
+  background: #fdfcfb;
+  color: var(--text);
+  transition: border-color 0.2s;
+}
+.chat-inp:focus { border-color: var(--maroon); }
+.chat-send {
+  background: var(--maroon);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.chat-send:hover { background: var(--maroon-dark); }
+
+/* ── EMPTY / ERROR ───────────────────────────── */
+.error-msg {
+  background: var(--red-bg);
+  border: 1.5px solid #f5b5b5;
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: var(--red);
+  font-size: 13px;
+  margin-top: 14px;
+  display: none;
+  font-weight: 500;
+}
+
+/* ── FOOTER ──────────────────────────────────── */
+.footer {
+  text-align: center;
+  padding: 28px 0 36px;
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.footer-logo { height: 22px; opacity: 0.6; }
+.footer span { font-weight: 600; color: var(--maroon); }
+
+/* ── DIVIDER ─────────────────────────────────── */
+.brand-bar {
+  height: 4px;
+  background: linear-gradient(90deg, var(--maroon) 0%, var(--orange) 40%, var(--gold) 100%);
+}
+
+@media(max-width:640px) {
+  .header h1 { font-size: 18px; }
+  .header-badge { display: none; }
+  .card { padding: 20px 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ BRAND BAR ═════════════════════════════ -->
+<div class="brand-bar"></div>
+
+<!-- ══ HEADER ════════════════════════════════ -->
+<div class="header">
+  <div class="wrap">
+    <div class="header-inner">
+      <div class="header-logo">
+        <img src="{{ url_for(\'static\', filename=\'logo.png\') }}" alt="Patil Group">
+      </div>
+      <div class="header-text">
+        <h1>RecruitAI</h1>
+        <p>AI-Powered Candidate Matching</p>
+      </div>
+      <div class="header-badge">Patil Group HR Tool</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SETUP CARD ════════════════════════════ -->
+<div class="wrap">
+<div class="card">
+  <div class="card-title">
+    <div class="step-num">1</div>
+    Setup
+  </div>
+
+  <!-- Folder Path -->
+  <div style="margin-bottom: 22px;">
+    <label>Resume Folder Path</label>
+    <div class="input-wrap has-btn">
+      <input type="text" id="folder-path" placeholder="C:\Users\you\resumes" oninput="validateFolder()" />
+      <button class="browse-btn" onclick="browseFolder()">Browse</button>
+    </div>
+    <div class="hint" id="folder-hint">Absolute path to folder containing PDF / DOCX / TXT resumes</div>
+  </div>
+
+  <!-- JD Upload -->
+  <div>
+    <label>Upload Job Description</label>
+    <div class="dropzone" id="jd-zone"
+         ondragover="event.preventDefault();this.classList.add('drag-over')"
+         ondragleave="this.classList.remove('drag-over')"
+         ondrop="handleJDDrop(event)">
+      <input type="file" id="jd-file" accept=".pdf,.docx,.doc,.txt" onchange="handleJDChange(event)" />
+      <div class="dropzone-icon">📄</div>
+      <p>Drop JD file here or <strong>browse</strong></p>
+      <small>Supports PDF, DOCX, TXT</small>
+    </div>
+    <div id="jd-preview" style="display:none"></div>
+  </div>
+
+  <div id="error-msg" class="error-msg"></div>
+
+  <div style="margin-top:24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <button class="btn-primary" id="analyze-btn" onclick="startAnalysis()">
+      Analyze &amp; Rank Resumes
+    </button>
+    <span id="file-count" style="font-size:13px;color:var(--muted)"></span>
+  </div>
+
+  <div id="progress-box" class="progress-box" style="display:none">
+    <div class="progress-label" id="progress-label">Preparing...</div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RESULTS CARD ══════════════════════════ -->
+<div class="card" id="results-card" style="display:none">
+  <div class="results-head">
+    <div class="results-title">
+      Results <span class="badge" id="results-badge">0 candidates</span>
+    </div>
+    <div class="controls">
+      <label style="font-size:13px;color:var(--muted);margin-bottom:0">Show:</label>
+      <select class="show-select" id="show-n" onchange="renderTable()">
+        <option>10</option><option>20</option><option>50</option><option>100</option>
+      </select>
+      <button class="btn-sm" onclick="exportCSV()">Export CSV</button>
+      <button class="btn-sm" onclick="exportExcel()">Export Excel</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Candidate</th>
+          <th>Score</th>
+          <th>Matched Skills</th>
+          <th>Experience</th>
+          <th>Strengths</th>
+          <th>Gaps</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="results-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="footer">
+  <img src="{{ url_for(\'static\', filename=\'logo.png\') }}" class="footer-logo" alt="Patil Group">
+  <span>Patil Group</span> · RecruitAI · Powered by Groq AI
+</div>
+</div><!-- /wrap -->
+
+<script>
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let jdText = '';
+let jdFileName = '';
+let results = [];
+let chats = {};
+
+// ═══════════════════════════════════════════════════
+//  FOLDER
+// ═══════════════════════════════════════════════════
+async function browseFolder() {
+  const res = await fetch('/api/browse', { method: 'POST' });
+  const data = await res.json();
+  if (data.path) {
+    document.getElementById('folder-path').value = data.path;
+    setFolderHint(data.count);
+  }
+}
+
+let folderTimer;
+function validateFolder() {
+  clearTimeout(folderTimer);
+  folderTimer = setTimeout(async () => {
+    const path = document.getElementById('folder-path').value.trim();
+    if (!path) return;
+    const res = await fetch('/api/validate-folder', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({path})
+    });
+    const data = await res.json();
+    if (data.valid) setFolderHint(data.count);
+    else setFolderError('Folder not found or inaccessible');
+  }, 600);
+}
+
+function setFolderHint(count) {
+  const el = document.getElementById('folder-hint');
+  el.className = 'hint ok';
+  el.textContent = `✓ ${count} resume file${count !== 1 ? 's' : ''} found`;
+  document.getElementById('file-count').textContent = '';
+}
+function setFolderError(msg) {
+  const el = document.getElementById('folder-hint');
+  el.className = 'hint err';
+  el.textContent = '✗ ' + msg;
+}
+
+// ═══════════════════════════════════════════════════
+//  JD UPLOAD
+// ═══════════════════════════════════════════════════
+function handleJDDrop(e) {
+  e.preventDefault();
+  document.getElementById('jd-zone').classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) loadJDFile(e.dataTransfer.files[0]);
+}
+function handleJDChange(e) {
+  if (e.target.files[0]) loadJDFile(e.target.files[0]);
+}
+
+async function loadJDFile(file) {
+  jdFileName = file.name;
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  if (ext === 'txt') {
+    jdText = await file.text();
+  } else if (ext === 'pdf' || ext === 'docx' || ext === 'doc') {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch('/api/extract-text', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) {
+      showError('JD upload failed: ' + data.error);
+      return;
+    }
+    jdText = data.text || '';
+  }
+
+  if (!jdText) {
+    showError('Could not extract text from this JD file. Please upload a different file or use plain text.');
+    return;
+  }
+  showJDPreview();
+}
+
+function showJDPreview() {
+  const preview = document.getElementById('jd-preview');
+  preview.style.display = 'block';
+  preview.innerHTML = `
+    <div class="jd-loaded">
+      <span>✅</span>
+      <div class="jd-body">
+        <div class="jd-name">${jdFileName}</div>
+        <div class="jd-excerpt">${jdText.slice(0, 250).replace(/\n/g, ' ')}${jdText.length > 250 ? '...' : ''}</div>
+      </div>
+      <button onclick="clearJD()" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:18px">×</button>
+    </div>`;
+}
+
+function clearJD() {
+  jdText = ''; jdFileName = '';
+  document.getElementById('jd-preview').style.display = 'none';
+  document.getElementById('jd-file').value = '';
+}
+
+// ═══════════════════════════════════════════════════
+//  ANALYSIS (SSE streaming)
+// ═══════════════════════════════════════════════════
+async function startAnalysis() {
+  const folderPath = document.getElementById('folder-path').value.trim();
+  const errBox = document.getElementById('error-msg');
+  errBox.style.display = 'none';
+
+  if (!folderPath) { showError('Please select a resume folder.'); return; }
+  if (!jdText) { showError('Please upload a Job Description file.'); return; }
+
+  document.getElementById('analyze-btn').disabled = true;
+  document.getElementById('progress-box').style.display = 'block';
+  document.getElementById('results-card').style.display = 'none';
+  results = [];
+  chats = {};
+  setProgress(2, 'Connecting to AI...');
+
+  const formData = new FormData();
+  formData.append('folder_path', folderPath);
+  formData.append('jd_text', jdText);
+
+  const response = await fetch('/api/analyze', { method: 'POST', body: formData });
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const lines = buf.split('\n');
+    buf = lines.pop();
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const evt = JSON.parse(line.slice(6));
+      if (evt.type === 'error') { showError(evt.message); break; }
+      if (evt.type === 'progress') setProgress(evt.progress, evt.message);
+      if (evt.type === 'done') {
+        results = evt.results;
+        setProgress(100, `Done! ${results.length} candidates ranked.`);
+        setTimeout(showResults, 400);
+      }
+    }
+  }
+
+  document.getElementById('analyze-btn').disabled = false;
+}
+
+function setProgress(pct, msg) {
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = msg;
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = '⚠️ ' + msg;
+  el.style.display = 'block';
+  document.getElementById('analyze-btn').disabled = false;
+}
+
+// ═══════════════════════════════════════════════════
+//  RENDER TABLE
+// ═══════════════════════════════════════════════════
+function showResults() {
+  document.getElementById('results-card').style.display = 'block';
+  document.getElementById('results-badge').textContent = `${results.length} candidate${results.length !== 1 ? 's' : ''}`;
+  renderTable();
+  document.getElementById('results-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderTable() {
+  const n = parseInt(document.getElementById('show-n').value);
+  const rows = results.slice(0, n);
+  const tbody = document.getElementById('results-tbody');
+
+  tbody.innerHTML = rows.map((r, i) => {
+    const sc = r.score >= 75 ? 'score-hi' : r.score >= 50 ? 'score-mid' : 'score-lo';
+    const skills = (r.matched_skills || []).map(s => `<div class="skill-pill">${s}</div>`).join('');
+    const strs = (r.strengths || []).map(s => `<div class="str-item">${s}</div>`).join('');
+    const gaps = (r.gaps || []).map(g => `<div class="gap-item">${g}</div>`).join('');
+    const chatHtml = chats[i] ? renderChat(i, r) : '';
+
+    return `<tr>
+      <td><div class="rank-num">#${i+1}</div></td>
+      <td>
+        <div class="cname">${r.candidate_name || r.fileName.replace(/\.[^.]+$/, '')}</div>
+        <div class="cfile">${r.fileName}</div>
+        ${r.education ? `<div class="cedu">${r.education}</div>` : ''}
+        ${r.years_exp ? `<span class="cexp-tag">${r.years_exp} exp</span>` : ''}
+        ${chatHtml}
+      </td>
+      <td><div class="score ${sc}">${r.score}</div></td>
+      <td><div class="skills">${skills}</div></td>
+      <td><div class="exp-text">${r.experience || '—'}</div></td>
+      <td>${strs}</td>
+      <td>${gaps}</td>
+      <td><button class="btn-sm btn-ask" onclick="toggleChat(${i})">Ask AI</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+//  CHAT
+// ═══════════════════════════════════════════════════
+function renderChat(idx, candidate) {
+  const state = chats[idx];
+  const msgsHtml = state.msgs.map(m =>
+    `<div class="msg ${m.role === 'user' ? 'msg-u' : 'msg-a'}">${m.content.replace(/\n/g, '<br>')}</div>`
+  ).join('');
+  const typingHtml = state.typing ? `<div class="msg-typing">AI is typing...</div>` : '';
+
+  return `<div class="chat-wrap">
+    <div class="chat-box">
+      <div class="chat-hdr">
+        <span>🤖 Ask AI about ${candidate.candidate_name || 'this candidate'}</span>
+        <button class="chat-close" onclick="toggleChat(${idx})">×</button>
+      </div>
+      <div class="quick-wrap">
+        <button class="qbtn" onclick="quickAsk(${idx}, 'Why this rank? Explain the scoring in detail.')">Why this rank?</button>
+        <button class="qbtn" onclick="quickAsk(${idx}, 'What are the key hiring risks for this candidate?')">Hiring risks?</button>
+        <button class="qbtn" onclick="quickAsk(${idx}, 'Suggest 5 tailored interview questions for this candidate.')">Interview Qs</button>
+        <button class="qbtn" onclick="quickAsk(${idx}, 'Give me a 3-bullet-point summary for quick review.')">Quick summary</button>
+      </div>
+      <div class="chat-msgs" id="chat-${idx}">${msgsHtml}${typingHtml}</div>
+      <div class="chat-row">
+        <input class="chat-inp" id="cinp-${idx}" placeholder="Ask anything about this candidate..."
+               onkeydown="if(event.key==='Enter') sendMsg(${idx})" />
+        <button class="chat-send" onclick="sendMsg(${idx})">Send</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleChat(idx) {
+  if (chats[idx]) {
+    delete chats[idx];
+  } else {
+    chats[idx] = { msgs: [], typing: false };
+  }
+  renderTable();
+  scrollChat(idx);
+}
+
+function quickAsk(idx, q) {
+  document.getElementById(`cinp-${idx}`).value = q;
+  sendMsg(idx);
+}
+
+async function sendMsg(idx) {
+  const inp = document.getElementById(`cinp-${idx}`);
+  const q = inp.value.trim();
+  if (!q) return;
+  inp.value = '';
+
+  chats[idx].msgs.push({ role: 'user', content: q });
+  chats[idx].typing = true;
+  renderTable();
+  scrollChat(idx);
+
+  const candidate = results[idx];
+  const history = chats[idx].msgs.map(m => ({ role: m.role, content: m.content }));
+
+  try {
+    const res = await fetch('/api/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ candidate, history })
+    });
+    const data = await res.json();
+    chats[idx].msgs.push({ role: 'assistant', content: data.reply || data.error || 'No response.' });
+  } catch {
+    chats[idx].msgs.push({ role: 'assistant', content: 'Request failed. Please try again.' });
+  }
+
+  chats[idx].typing = false;
+  renderTable();
+  scrollChat(idx);
+}
+
+function scrollChat(idx) {
+  setTimeout(() => {
+    const el = document.getElementById(`chat-${idx}`);
+    if (el) el.scrollTop = el.scrollHeight;
+  }, 80);
+}
+
+// ═══════════════════════════════════════════════════
+//  EXPORT
+// ═══════════════════════════════════════════════════
+function exportCSV() {
+  const headers = ['Rank','Candidate','File','Education','Experience','Score','Matched Skills','Summary','Strengths','Gaps'];
+  const rows = results.map((r, i) => [
+    i+1, r.candidate_name || '', r.fileName || '', r.education || '', r.years_exp || '',
+    r.score, (r.matched_skills||[]).join('; '), r.experience || '',
+    (r.strengths||[]).join('; '), (r.gaps||[]).join('; ')
+  ]);
+  const csv = [headers, ...rows].map(r =>
+    r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')
+  ).join('\n');
+  download(csv, 'resume-ranking.csv', 'text/csv');
+}
+
+function exportExcel() {
+  const headers = ['Rank','Candidate','File','Education','Experience','Score','Matched Skills','Summary','Strengths','Gaps'];
+  const rows = results.map((r, i) => [
+    i+1, r.candidate_name||'', r.fileName||'', r.education||'', r.years_exp||'',
+    r.score, (r.matched_skills||[]).join('; '), r.experience||'',
+    (r.strengths||[]).join('; '), (r.gaps||[]).join('; ')
+  ]);
+  let xls = `<table><tr>${headers.map(h=>`<th style="background:#8B1A2B;color:#fff;font-weight:700;padding:8px 12px">${h}</th>`).join('')}</tr>`;
+  rows.forEach(row => {
+    xls += `<tr>${row.map(v=>`<td style="padding:6px 12px;border-bottom:1px solid #eee">${v}</td>`).join('')}</tr>`;
+  });
+  xls += '</table>';
+  const html = `<html><head><meta charset="UTF-8"></head><body>${xls}</body></html>`;
+  download(html, 'resume-ranking.xls', 'application/vnd.ms-excel');
+}
+
+function download(content, filename, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type }));
+  a.download = filename;
+  a.click();
+}
+</script>
+</body>
+</html>
