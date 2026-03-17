@@ -62,16 +62,27 @@ def rank_resume(resume_text: str, jd_text: str, filename: str) -> dict:
 RESUME:
 {resume_text[:8000]}"""  # Trim very long resumes to stay within context
 
-    try:
-        response = client.chat.completions.create(
-            model=MODEL_NAME,
-            max_tokens=1000,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_content}
-            ],
-            temperature=0.3,
-        )
+    import time
+    max_retries = 3
+    retry_delay = 2  # seconds
+    
+    for attempt in range(max_retries):
+        try:
+            response = client.chat.completions.create(
+                model=MODEL_NAME,
+                max_tokens=1000,
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": user_content}
+                ],
+                temperature=0.3,
+            )
+            break # Success!
+        except Exception as e:
+            if 'rate' in str(e).lower() and attempt < max_retries - 1:
+                time.sleep(retry_delay * (attempt + 1)) # Incremental backoff
+                continue
+            raise e
 
         raw = response.choices[0].message.content.strip()
 

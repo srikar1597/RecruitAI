@@ -25,24 +25,29 @@ def extract_text_endpoint():
     """Extract text from an uploaded JD file"""
     if 'file' not in request.files:
         return jsonify({'text': '', 'error': 'No file'}), 400
+    
     file = request.files['file']
     filename = file.filename or ''
     ext = os.path.splitext(filename)[1].lower()
     temp_path = None
     try:
-        with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
-            temp_path = tmp.name
-        file.save(temp_path)
+        file.seek(0)
+        content = file.read()
+        if not content:
+            return jsonify({'text': '', 'error': 'Empty file'})
+
+        fd, temp_path = tempfile.mkstemp(suffix=ext)
+        with os.fdopen(fd, 'wb') as tmp:
+            tmp.write(content)
+            
         text = extract_text(temp_path)
         return jsonify({'text': text})
     except Exception as e:
         return jsonify({'text': '', 'error': str(e)})
     finally:
         if temp_path and os.path.exists(temp_path):
-            try:
-                os.unlink(temp_path)
-            except Exception:
-                pass
+            try: os.unlink(temp_path)
+            except: pass
 
 
 @app.route('/api/analyze', methods=['POST'])
@@ -61,56 +66,84 @@ def analyze():
     if not resume_files or all(f.filename == '' for f in resume_files):
         return jsonify({'type': 'error', 'message': 'No resume files uploaded. Please select PDF, DOCX, or TXT files.'})
 
+    # 1. IMMEDIATE EXTRACTION: Extract text before starting the stream to avoid closed handles
+    processed_data = []
+    error_results = []
+    
+    # Ensure current directory for static/logo if needed? No, standard paths.
+    
+    for i, file in enumerate(resume_files):
+        filename = file.filename or f"resume_{i+1}"
+        if not filename or filename == '': continue 
+        
+        ext = os.path.splitext(filename)[1].lower()
+        temp_path = None
+        try:
+            # Read into memory immediately while Flask handle is definitely open
+            file.seek(0)
+            file_content = file.read()
+            if not file_content:
+                raise ValueError("Empty file upload")
+
+            # Save content to a temporary file manually to bypass NamedTemporaryFile constraints on Windows
+            fd, temp_path = tempfile.mkstemp(suffix=ext)
+            with os.fdopen(fd, 'wb') as tmp:
+                tmp.write(file_content)
+            
+            # Now call extraction
+            text = extract_text(temp_path)
+            
+            if not text or not text.strip():
+                raise ValueError("Could not extract text (possibly a scanned/image PDF)")
+                
+            processed_data.append({'text': text, 'filename': filename})
+        except Exception as e:
+            error_results.append({
+                'score': 0,
+                'candidate_name': filename.rsplit('.', 1)[0],
+                'fileName': filename,
+                'education': '',
+                'years_exp': '',
+                'matched_skills': [],
+                'experience': 'Could not extract text',
+                'strengths': [],
+                'gaps': [str(e)]
+            })
+        finally:
+            if temp_path and os.path.exists(temp_path):
+                try: os.unlink(temp_path)
+                except: pass
+
     def generate():
-        results = []
+        all_final_results = []
+        
+        # First, yield any immediate errors from extraction
+        for err in error_results:
+            all_final_results.append(err)
+            yield f"data: {json.dumps({'type': 'progress', 'result': err, 'current': len(all_final_results), 'total': len(resume_files)})}\n\n"
 
-        # Process each file to extract text first (fast, but avoids keeping files open)
-        processed_data = []
-        for i, file in enumerate(resume_files):
-            filename = file.filename or f"resume_{i+1}"
-            ext = os.path.splitext(filename)[1].lower()
-            temp_path = None
-            try:
-                with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
-                    temp_path = tmp.name
-                file.save(temp_path)
-                text = extract_text(temp_path)
-                if not text.strip():
-                    raise ValueError("Could not extract text (possibly a scanned/image PDF)")
-                processed_data.append({'text': text, 'filename': filename})
-            except Exception as e:
-                # Add failed extraction immediately to results
-                error_result = {
-                    'score': 0,
-                    'candidate_name': filename.rsplit('.', 1)[0],
-                    'fileName': filename,
-                    'education': '',
-                    'years_exp': '',
-                    'matched_skills': [],
-                    'experience': 'Could not extract text',
-                    'strengths': [],
-                    'gaps': [str(e)]
-                }
-                results.append(error_result)
-                yield f"data: {json.dumps({'type': 'progress', 'result': error_result, 'current': len(results), 'total': len(resume_files)})}\n\n"
-            finally:
-                if temp_path and os.path.exists(temp_path):
-                    try: os.unlink(temp_path)
-                    except: pass
+        if not processed_data:
+            yield f"data: {json.dumps({'type': 'done', 'results': all_final_results, 'total': len(all_final_results)})}\n\n"
+            return
 
-        # Parallelize the AI ranking part
-        with ThreadPoolExecutor(max_workers=5) as executor:
-            future_to_file = {
-                executor.submit(rank_resume, data['text'], jd_text, data['filename']): data['filename']
-                for data in processed_data
-            }
+        # Parallelize the AI ranking part using pre-extracted text
+        # REDUCED WORKERS: Using 2 workers to avoid hitting free-tier rate limits
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            import time
+            
+            future_to_file = {}
+            for data in processed_data:
+                future = executor.submit(rank_resume, data['text'], jd_text, data['filename'])
+                future_to_file[future] = data['filename']
+                # Small delay between submissions to spread out API requests
+                time.sleep(0.5)
 
             from concurrent.futures import as_completed
             for future in as_completed(future_to_file):
                 filename = future_to_file[future]
                 try:
                     result = future.result()
-                    results.append(result)
+                    all_final_results.append(result)
                 except Exception as e:
                     result = {
                         'score': 0,
@@ -123,14 +156,14 @@ def analyze():
                         'strengths': [],
                         'gaps': [str(e)]
                     }
-                    results.append(result)
+                    all_final_results.append(result)
 
                 # Send progress update
-                yield f"data: {json.dumps({'type': 'progress', 'result': result, 'current': len(results), 'total': len(resume_files)})}\n\n"
+                yield f"data: {json.dumps({'type': 'progress', 'result': result, 'current': len(all_final_results), 'total': len(resume_files)})}\n\n"
 
         # Final sort and done signal
-        results.sort(key=lambda x: x['score'], reverse=True)
-        yield f"data: {json.dumps({'type': 'done', 'results': results, 'total': len(results)})}\n\n"
+        all_final_results.sort(key=lambda x: x['score'], reverse=True)
+        yield f"data: {json.dumps({'type': 'done', 'results': all_final_results, 'total': len(all_final_results)})}\n\n"
 
     return Response(generate(), mimetype='text/event-stream')
 
