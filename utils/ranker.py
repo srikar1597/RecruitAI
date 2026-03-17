@@ -66,6 +66,7 @@ RESUME:
     max_retries = 3
     retry_delay = 2  # seconds
     
+    response = None
     for attempt in range(max_retries):
         try:
             response = client.chat.completions.create(
@@ -84,6 +85,10 @@ RESUME:
                 continue
             raise e
 
+    if not response:
+        raise ValueError("AI failed to provide a response after multiple attempts.")
+
+    try:
         raw = response.choices[0].message.content.strip()
 
         # Strip any accidental markdown fences
