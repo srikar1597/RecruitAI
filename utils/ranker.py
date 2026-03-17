@@ -12,7 +12,7 @@ from groq import Groq
 #   "llama-3.3-70b-versatile"  — best balance (recommended)
 #   "llama-3.1-8b-instant"     — cheaper, faster, good for basic screening
 #   "mixtral-8x7b-32768"       — good alternative
-MODEL_NAME = "llama-3.3-70b-versatile"
+MODEL_NAME = "llama-3.1-8b-instant"
 
 from dotenv import load_dotenv
 load_dotenv()

@@ -129,7 +129,7 @@ Answer HR questions concisely. Keep answers under 150 words. Be direct and speci
         messages = [{"role": "system", "content": system}] + history
 
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="llama-3.1-8b-instant",
             max_tokens=400,
             messages=messages,
             temperature=0.4,
