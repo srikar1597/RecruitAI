@@ -127,16 +127,16 @@ def analyze():
             return
 
         # Parallelize the AI ranking part using pre-extracted text
-        # REDUCED WORKERS: Using 2 workers to avoid hitting free-tier rate limits
-        with ThreadPoolExecutor(max_workers=2) as executor:
+        # REDUCED WORKERS: Using 1 worker for free-tier to strictly follow TPM (Tokens Per Minute) limits
+        with ThreadPoolExecutor(max_workers=1) as executor:
             import time
             
             future_to_file = {}
             for data in processed_data:
                 future = executor.submit(rank_resume, data['text'], jd_text, data['filename'])
                 future_to_file[future] = data['filename']
-                # Small delay between submissions to spread out API requests
-                time.sleep(0.5)
+                # Substantial delay between submissions to allow TPM quota to reset
+                time.sleep(2.0)
 
             from concurrent.futures import as_completed
             for future in as_completed(future_to_file):

@@ -60,18 +60,18 @@ def rank_resume(resume_text: str, jd_text: str, filename: str) -> dict:
 ---
 
 RESUME:
-{resume_text[:8000]}"""  # Trim very long resumes to stay within context
+{resume_text[:5000]}"""  # Further trim to 5000 chars to stay within TPM limits
 
     import time
     max_retries = 3
-    retry_delay = 2  # seconds
+    retry_delay = 10  # Increased delay for TPM reset
     
     response = None
     for attempt in range(max_retries):
         try:
             response = client.chat.completions.create(
                 model=MODEL_NAME,
-                max_tokens=1000,
+                max_tokens=800, # Reduced slightly to save tokens
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_content}
@@ -81,7 +81,8 @@ RESUME:
             break # Success!
         except Exception as e:
             if 'rate' in str(e).lower() and attempt < max_retries - 1:
-                time.sleep(retry_delay * (attempt + 1)) # Incremental backoff
+                # If rate limit hit, wait significantly longer
+                time.sleep(retry_delay * (attempt + 1))
                 continue
             raise e
 
