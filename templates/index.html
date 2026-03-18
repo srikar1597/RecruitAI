@@ -645,15 +645,36 @@ tbody tr:hover td { background: #fdfcfa; }
 
   <!-- Resume Upload -->
   <div style="margin-bottom: 22px;">
-    <label>Upload Resumes</label>
-    <div class="dropzone" id="resume-zone"
-         ondragover="event.preventDefault();this.classList.add('drag-over')"
-         ondragleave="this.classList.remove('drag-over')"
-         ondrop="handleResumeDrop(event)">
-      <input type="file" id="resume-files" accept=".pdf,.docx,.doc,.txt" multiple onchange="handleResumeChange(event)" />
-      <div class="dropzone-icon">📁</div>
-      <p>Drop resume files here or <strong>browse</strong></p>
-      <small>Supports PDF, DOCX, TXT — select multiple files</small>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 7px;">
+      <label style="margin: 0;">Upload Resumes</label>
+      <span style="font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">or</span>
+      <label style="margin: 0;">Upload Folder</label>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; gap: 15px;">
+      <!-- File Zone -->
+      <div class="dropzone" id="resume-zone"
+           ondragover="event.preventDefault();this.classList.add('drag-over')"
+           ondragleave="this.classList.remove('drag-over')"
+           ondrop="handleResumeDrop(event)">
+        <input type="file" id="resume-files" accept=".pdf,.docx,.doc,.txt" multiple onchange="handleResumeChange(event)" />
+        <div class="dropzone-icon" style="font-size: 28px; margin-bottom: 8px;">📁</div>
+        <p style="font-size: 13px;">Drop files or <strong>browse</strong></p>
+        <small style="font-size: 10px;">Supports PDF, DOCX, TXT</small>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: var(--border); letter-spacing: 1px;">OR</div>
+
+      <!-- Folder Zone -->
+      <div class="dropzone" id="folder-zone"
+           ondragover="event.preventDefault();this.classList.add('drag-over')"
+           ondragleave="this.classList.remove('drag-over')"
+           ondrop="handleResumeDrop(event)">
+        <input type="file" id="folder-input" webkitdirectory directory multiple onchange="handleResumeChange(event)" />
+        <div class="dropzone-icon" style="font-size: 28px; margin-bottom: 8px;">📂</div>
+        <p style="font-size: 13px;">Select <strong>folder</strong></p>
+        <small style="font-size: 10px;">Upload folder contents</small>
+      </div>
     </div>
     <div class="hint" id="resume-hint">No files selected</div>
   </div>
@@ -748,20 +769,30 @@ let resumeFileList = [];
 function handleResumeDrop(e) {
   e.preventDefault();
   document.getElementById('resume-zone').classList.remove('drag-over');
-  const dropped = Array.from(e.dataTransfer.files).filter(f =>
-    /\.(pdf|docx|doc|txt)$/i.test(f.name)
-  );
+  document.getElementById('folder-zone').classList.remove('drag-over');
+  const dropped = Array.from(e.dataTransfer.files);
   if (dropped.length) addResumeFiles(dropped);
 }
 
 function handleResumeChange(e) {
   const selected = Array.from(e.target.files);
   if (selected.length) addResumeFiles(selected);
+  // Reset input value so same files/folder can be selected again if needed
+  e.target.value = '';
 }
 
 function addResumeFiles(files) {
   const existing = new Set(resumeFileList.map(f => f.name));
-  const newFiles = files.filter(f => !existing.has(f.name));
+  const newFiles = files.filter(f => {
+    const isNew = !existing.has(f.name);
+    const isSupported = /\.(pdf|docx|doc|txt)$/i.test(f.name);
+    return isNew && isSupported;
+  });
+  
+  if (newFiles.length === 0 && files.length > 0) {
+    // Optionally show a silent hint if all files were already added or unsupported
+  }
+  
   resumeFileList = [...resumeFileList, ...newFiles];
   updateResumeHint();
 }
